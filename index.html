@@ -1,6 +1,76 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link href="style.css" rel="stylesheet" />
+</head>
 <body>
-    <p> Hello world!!! </p>
+    <h1 class="header">MEGDLE</h1>
+
+    <div class="final-screen hidden" id="final-screen"></div>
+    <img src="./img/suspicious.jpg" class="mascot" id="meg">
+    <div class="chat-bubble" id = "text-bubble" defer>temp</div>
+    
+    <div class="back-panel"></div>
+    <div class="retry hidden" id="retry-button">Try Again</div>
+    
+    <div class="game-board">
+        <div id="game-row1">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+        <div id="game-row2">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+        <div id="game-row3">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+        <div id="game-row4">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+        <div id="game-row5">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+        <div id="game-row6">
+            <div class="game-row">
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+                <div class="tile incorrect-tile" maxlength="1"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script type = "module" src="dist/megdle_code.js" defer></script>
+
 </body>
 </html>
