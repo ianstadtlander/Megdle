@@ -1,10 +1,8 @@
 apple
 megan
 fatty
-biggy
 gross
 short
-boobs
 brown
 cutie
 umass
@@ -13,11 +11,11 @@ psych
 house
 green
 serve
-piece
 wendy
 drive
 crash
 swear
+curse
 julia
 drunk
 cider
@@ -32,10 +30,8 @@ bella
 sadie
 avery
 tyler
-meggy
 nurse
 reels
-bigot
 large
 heavy
 thick
@@ -59,6 +55,7 @@ scars
 steak
 feast
 berbo
+bagel
 fight
 eater
 kahan
@@ -77,7 +74,6 @@ sushi
 swift
 juice
 lamby
-night
 silly
 angry
 upset
@@ -85,3 +81,15 @@ drama
 worry
 logan
 among
+socks
+laura
+color
+jason
+grace
+major
+paige
+sofia
+aiden
+nolan
+grill
+

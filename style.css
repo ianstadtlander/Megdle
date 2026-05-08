@@ -38,7 +38,7 @@ body {
   max-width: 30vw;
   margin: .6vw;
   text-align: left;
-  font-family: 'Clear Sans', sans-serif;
+  font-family: 'Dynapuff', sans-serif;
   font-size: x-large;
 
   top: 25vh;
@@ -147,6 +147,11 @@ body {
     font-family: 'Clear Sans', sans-serif;
     font-style: bold;
 
+    transition: transform 0.3s ease;
+}
+
+.tile-pop {
+    transform: scale(1.05);
 }
 
 .incorrect-tile {
@@ -181,6 +186,70 @@ body {
 
   /* Ensure it stays behind the main bubble if you have a border */ 
   z-index: -1;
+}
+
+.keyboard-board {
+    gap: .3vw;
+    padding: 1.22vw;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    
+    top: 75vh;
+    left: 82.5vw;
+    position: fixed;
+
+    row-gap: .6vw;
+    column-gap: .6vw;
+    
+
+    transform: translate(-50%, -50%);
+}
+
+.keyboard-row {
+    display: flex;
+    gap: .5vw;
+}
+
+.key-tile {
+    
+    /*flex: 1;*/
+    width: 2vw;
+    height: 2.5vw;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 1vw;
+    font-family: 'Clear Sans', sans-serif;
+    font-style: bold;
+    color: black;
+
+    transition: transform 0.3s ease;
+
+}
+
+.unguessed-key-tile {
+    border: .122vw solid rgb(58, 58, 58);
+    background-color: rgb(193, 191, 191);
+}
+
+.incorrect-key-tile {
+    border: .122vw solid rgb(58, 58, 58);
+    background-color: rgb(77, 76, 76);
+}
+
+.correct-key-tile {
+    border: .122vw solid rgb(58, 58, 58);
+    background-color: rgb(5, 161, 33);
+}
+
+.close-key-tile {
+    border: .122vw solid rgb(58, 58, 58);
+    background-color: rgb(218, 197, 10);
 }
 
 .final-screen {
@@ -241,4 +310,8 @@ body {
 
 .hidden {
     display: none;
+}
+
+.glowing {
+    box-shadow: 0 0 10px 5px rgb(250, 236, 39);
 }

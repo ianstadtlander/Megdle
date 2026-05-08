@@ -1,15 +1,31 @@
 // TO LOCALLY RUN FOR TESTING, USE VSCODE EXTENSION "Live Server" AND PRESS AT BOTTOM RIGHT "Go Live"
 
-async function getDictionary(): Promise<string[]> {
-    const dictURL = "./dictionary.txt";
+async function getEnglishWords(): Promise<string[]> {
+    const docURL = "./english_words.txt";
     try {
-        const response = await fetch(dictURL);
+        const response = await fetch(docURL);
         if (!response.ok) {
             throw new Error(`Response status ${response.status}`);
         }
         const text = await response.text();
-        const dictionary = text.split(/\r?\n/).map(word => word.trim());
-        return dictionary;
+        const english_words = text.split(/\r?\n/).map(word => word.trim());
+        return english_words;
+
+    } catch(error) {
+        throw new Error(String(error));
+    }
+}
+
+async function getAnswerWords(): Promise<string[]> {
+    const docURL = "./answer_words.txt";
+    try {
+        const response = await fetch(docURL);
+        if (!response.ok) {
+            throw new Error(`Response status ${response.status}`);
+        }
+        const text = await response.text();
+        const english_words = text.split(/\r?\n/).map(word => word.trim());
+        return english_words;
 
     } catch(error) {
         throw new Error(String(error));
@@ -17,19 +33,52 @@ async function getDictionary(): Promise<string[]> {
 }
 
 async function makeGlobalHashDict(): Promise<Set<string>> {
-    const dictionaryArray = await getDictionary();
-    const dictionaryHash = new Set<string>();
-    for (const word of dictionaryArray) {
-        dictionaryHash.add(word.toUpperCase().trim());
+    const wordsArray = await getEnglishWords();
+    const wordsHash = new Set<string>();
+    for (const word of wordsArray) {
+        wordsHash.add(word.toUpperCase().trim());
     }
-    return dictionaryHash;
+    return wordsHash;
 }
 
-function chooseWord(dictionary: string[]) {
-    // First choose a random word from the dictionary
-    const randomNumber = Math.floor(Math.random() * dictionary.length);
+async function makeGlobalHashAnswers(): Promise<Set<string>> {
+    const wordsArray = await getAnswerWords();
+    const wordsHash = new Set<string>();
+    for (const word of wordsArray) {
+        wordsHash.add(word.toUpperCase().trim());
+    }
+    return wordsHash;
+}
 
-    return dictionary[randomNumber];
+
+function createKeyboardDict(): Map<string, HTMLElement> {
+    
+    const keyboard_dict = new Map<string, HTMLElement>();
+
+    for (let key_num = 1; key_num < 27; key_num++) {
+
+        const key = document.getElementById(`key${key_num}`);
+        const letter = document.getElementById(`key${key_num}`)!.textContent;
+        
+
+        if (key && letter) {
+            try {
+                keyboard_dict.set(letter, key);
+            } catch(error) {
+                throw new Error(String(error));
+            }
+        }
+    }
+
+    return keyboard_dict;
+        
+}
+
+function chooseWord(words: string[]) {
+    // First choose a random word from the dictionary
+    const randomNumber = Math.floor(Math.random() * words.length);
+
+    return words[randomNumber];
 }
 
 let ANSWER_WORD = "";
@@ -37,8 +86,10 @@ let current_tile = 0;
 let current_row = 1;
 let game_done = false;
 
-let dictionaryHash = new Set();
+let answersHash = new Set<string>();
+let wordsHash = new Set<string>();
 const dialogue = new Map<string, string[]>();
+const keyboard_dict = createKeyboardDict();
 
 function getGuess() {
    
@@ -114,8 +165,32 @@ window.addEventListener("keydown", (e) =>{
                 // VALID GUESS WE TAKE IT
                 } else if (guessInDictionary(guess)) {
                     colorGuess(guess);
+                    console.log(current_tile);
+                    // Remove glowing effect from previous line
+                    let row = document.getElementById(`game-row${current_row}`);
+                    let tiles = row?.querySelectorAll(".tile");
+
+                    if (tiles && tiles[current_tile-1]) {
+                        try {
+                            tiles[current_tile-1]!.classList.remove('glowing');
+                        } catch(error) {
+                            throw new Error(String(error));
+                        }
+                    }   
                     current_row++;
                     current_tile = 0;
+
+                    row = document.getElementById(`game-row${current_row}`);
+                    tiles = row?.querySelectorAll(".tile");
+
+                    if (tiles && tiles[current_tile]) {
+                        try {
+                            tiles[current_tile]!.classList.add('glowing');
+                        } catch(error) {
+                            throw new Error(String(error));
+                        }
+                    }   
+
 
                     // LAST GUESS
                     if (current_row === 6) {
@@ -172,7 +247,7 @@ window.addEventListener("keydown", (e) =>{
                     
                     const textBubble = document.getElementById("text-bubble");
                     if (textBubble) {
-                        textBubble.textContent = "yeah, so like, " + guess + ", is NOT a meg word! do you even know me???"
+                        textBubble.textContent = "yeah, so like, " + guess + ", is NOT a word, AND its not a meg word! do you even know me???"
                     }
                 }
 
@@ -215,12 +290,22 @@ function colorGuess(guess: string) {
             if (guess[i] === ANSWER_WORD[i]) {
                 tile.classList.remove("incorrect-tile");
                 tile.classList.add("correct-tile");
+
+                // Update the keyboard to be current
+                const letter = keyboard_dict.get(guess[i]!)!
+                if (letter.classList.contains('unguessed-key-tile') || letter.classList.contains('close-key-tile')) {
+                    letter.classList.add('correct-key-tile');
+                    letter.classList.remove('unguessed-key-tile');
+                    letter.classList.remove('close-key-tile');
+                };
+
                 letterMap.set(ANSWER_WORD[i]!, letterMap.get(ANSWER_WORD[i]!)! - 1);
                 indicesCorrect.add(i);
             }
         }
     }
 
+    // Colors them yellow if incorrect placement
     for (let i = 0; i < 5; i++) {
         if (tiles && tiles[i]) {
             const tile = tiles[i]!;
@@ -228,11 +313,29 @@ function colorGuess(guess: string) {
             if (letterMap.has(guess[i]!) && letterMap.get(guess[i]!)! > 0 && !(indicesCorrect.has(i))) {
                 console.log("Contains the index: " + indicesCorrect.has(i))
                 tile.classList.remove("incorrect-tile");
+                // Update the keyboard to be current
+                const letter = keyboard_dict.get(guess[i]!)!;
+                if (letter.classList.contains('unguessed-key-tile')) {
+                    letter.classList.add('close-key-tile');
+                    letter.classList.remove('unguessed-key-tile');
+                };
+                
                 tile.classList.add("wrong-spot-tile");
                 letterMap.set(guess[i]!, letterMap.get(guess[i]!)! - 1);
             }
         }
     }
+
+    for (let i = 0; i < 5; i++) {
+        const letter = keyboard_dict.get(guess[i]!)!;
+        // If it still has unguessed class, it is not correct or correct with incorrect
+        // placement. Therefore, it is incorrect.
+        if (letter.classList.contains('unguessed-key-tile')) {
+            letter.classList.add('incorrect-key-tile');
+            letter.classList.remove('unguessed-key-tile');
+        }
+    }
+    
 
     // If there are no correct indices, it was a "bad" guess
     if (indicesCorrect.size === 0) {
@@ -283,6 +386,15 @@ function deleteLetter() {
                 throw new Error(String(error));
             }
         }
+
+        if (tiles && tiles[current_tile]) {
+            try {
+                tiles[current_tile]!.classList.add('glowing');
+                tiles[current_tile+1]!.classList.remove('glowing');
+            } catch(error) {
+                throw new Error(String(error));
+            }
+        }
         
     }
 }
@@ -295,13 +407,24 @@ function addLetter(keyPressed: string) {
             
         const tiles = row?.querySelectorAll(".tile");
         
-        // If tiles and tiles[current_tile] exist, remove the current tile
+        // If tiles and tiles[current_tile] exist, add to the current tile
         if (tiles && tiles[current_tile]) {
             try {
                 tiles[current_tile]!.textContent = keyPressed.toUpperCase();
             } catch(error) {
                 throw new Error(String(error));
             }
+        }
+
+        // Add glowing effect if tiles[current_tile + 1] exist and remove it from previous
+        if (tiles && tiles[current_tile+1]) {
+            try {
+                tiles[current_tile+1]!.classList.add('glowing');
+                tiles[current_tile]!.classList.remove('glowing');
+            } catch(error) {
+                throw new Error(String(error));
+            }
+            
         }
 
         // Incrememnt the current tile
@@ -320,7 +443,7 @@ function checkGuess(guess: string) {
 }
 
 function guessInDictionary(guess: string): boolean {
-    if (dictionaryHash.has(guess)) {
+    if (wordsHash.has(guess)) {
         return true;
     } else {
         return false;
@@ -338,8 +461,10 @@ function createDialogue() {
     dialogue.get("welcome")?.push(`YOU GOTTA GUESS "FATTY"! THATS WHAT I WOULD GUESS!`);
     dialogue.get("welcome")?.push("do you realy think you'll win? like really?")
     dialogue.get("welcome")?.push(`I LOVE MUFFIN HOUSE MMMMMMMM YUMMY YUMMY MUFFY HOUSY`);
-    dialogue.get("welcome")?.push("sorry, no talky without MAAAHHHH COOOFFFEEEEEEEEE");
+    dialogue.get("welcome")?.push("i LOVE coffee. MMMMM yummy coffee yummy yummy in my TUM i love coffee so delish");
     dialogue.get("welcome")?.push(`FEE FI FO FUM!`);
+    dialogue.get("welcome")?.push(`THIS IS SO COOL! SO EPIC! YAY!`);
+    dialogue.get("welcome")?.push(`HELP IM TRAPPED IN HERE I CANT GET OUT!!!!`);
 
     dialogue.set("good-guess", []);
     dialogue.get("good-guess")?.push("not a bad guess! still wrong tho");
@@ -349,6 +474,7 @@ function createDialogue() {
     dialogue.set("bad-guess", []);
     dialogue.get("bad-guess")?.push("you call that a guess? highkey embarassing");
     dialogue.get("bad-guess")?.push("wow. you genuinely suck.");
+    dialogue.get("bad-guess")?.push("im not easily impressed... and im still not impressed");
     dialogue.get("bad-guess")?.push("shhhheeeeeesssshhh that was terrible");
     dialogue.get("bad-guess")?.push("awwwwww its adorable!!! stupid things are SOOOOOO CUTE!");
     dialogue.get("bad-guess")?.push("maybe just give up?");
@@ -357,7 +483,8 @@ function createDialogue() {
     dialogue.set("winner", []);
     dialogue.get("winner")?.push("hey look at that, you won");
     dialogue.get("winner")?.push("WOOOOOOHOOOOO THATS WHAT IM TALKING ABOUT");
-    dialogue.get("winner")?.push("yeah i lowk knew that one chief");
+    dialogue.get("winner")?.push("yeah i lowk knew that one");
+    dialogue.get("winner")?.push("dont let it get to your head. your big, fat head. FAT FAT FAT HEAD!");
     dialogue.get("winner")?.push("that was awesome! do you wanna know what else is awesome? mm-- mm... muuff.... MUFFIN HOOOOOOUUUUSSEEEE!");
     
 
@@ -377,11 +504,25 @@ async function startGame() {
     // Create the dialogue
     createDialogue();
 
-    // Get dictionary
-    const dictionary = await getDictionary();
-    dictionaryHash = await makeGlobalHashDict();
+    // Get dictionary of all acceptable words
+    const words = await getEnglishWords();
+    wordsHash = await makeGlobalHashDict();
+
+    // Get dictionary of all the answers
+    const answers = await getAnswerWords();
+    answersHash = await makeGlobalHashAnswers();
+
+    // Add the answers to the list of words that can be guessed
+    for (const a of answers) {
+        // Should already be upper case and in correct form
+        words.push(a)
+    }
+
+    // Do the same for the hash so when checking answers we accept ones from answers
+    wordsHash = new Set([...wordsHash, ...answersHash])
     
-    const proposedAnswer = chooseWord(dictionary);
+
+    const proposedAnswer = chooseWord(answers);
     if (proposedAnswer === undefined) {
         throw new Error("Proposed answer is undefined");
     }
@@ -396,6 +537,20 @@ async function startGame() {
     if (textBubble) {
         textBubble.textContent = dialogue.get("welcome")![randomNumber] ?? "";
     }
+
+    // Initialize the first glowing letter
+    const startingRow = document.getElementById(`game-row${current_row}`);
+            
+    const tiles = startingRow?.querySelectorAll(".tile");
+
+    if (tiles && tiles[0]) {
+        try {
+            tiles[current_tile]!.classList.add('glowing');
+        } catch(error) {
+            throw new Error(String(error));
+        }
+    }
+
         
 
     // For debugging/cheating
